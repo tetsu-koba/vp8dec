@@ -1,6 +1,10 @@
 #!/bin/sh -eux
-LIBDIR=/opt/homebrew/lib
-INCLUDE=/opt/homebrew/include
+case "$OSTYPE" in
+    darwin*) case "$HOSTTYPE" in
+		 arm64) LIBDIR=/opt/homebrew/lib;INCLUDE=/opt/homebrew/include;;
+		 *)	LIBDIR=/usr/local/lib;INCLUDE=/usr/local/include;;
+	     esac ;;
+esac
 
 if [ $# -eq 0 ]; then
     OPTS=-Doptimize=Debug

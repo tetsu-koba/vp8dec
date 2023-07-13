@@ -1,0 +1,50 @@
+name: CI
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  test_on_linux:
+    strategy:
+      matrix:
+        optimize: [Debug, ReleaseSafe, ReleaseFast, ReleaseSmall]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: goto-bus-stop/setup-zig@v2.0.1
+        with:
+          version: master
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: libvpx-dev
+          version: 1.0
+      - run: ./test.sh ${{ matrix.optimize }}
+  test_on_mac:
+    strategy:
+      matrix:
+        optimize: [Debug, ReleaseSafe, ReleaseFast, ReleaseSmall]
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: goto-bus-stop/setup-zig@v2.0.1
+        with:
+          version: master
+      - name: Install libs
+        run: |
+          brew update
+          brew install libvpx
+      - run: ./test.sh ${{ matrix.optimize }}
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: goto-bus-stop/setup-zig@v2.0.1
+        with:
+          version: master
+      - run: zig fmt --check .

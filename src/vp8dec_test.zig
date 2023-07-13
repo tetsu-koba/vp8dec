@@ -16,11 +16,23 @@ test "decode test" {
     try decode(alc, ivf_file, outfile);
 }
 
+test "decode test vp9" {
+    const alc = std.heap.page_allocator;
+    const input_file = "testfiles/sample02.ivf";
+    const output_file = "testfiles/output2.i420";
+
+    var ivf_file = try std.fs.cwd().openFile(input_file, .{});
+    defer ivf_file.close();
+
+    var outfile = try std.fs.cwd().createFile(output_file, .{});
+    defer outfile.close();
+    try decode(alc, ivf_file, outfile);
+}
+
 fn decode(alc: std.mem.Allocator, ivf_file: std.fs.File, outfile: std.fs.File) !void {
     var reader = try IVF.IVFReader.init(ivf_file);
     defer reader.deinit();
 
-    try testing.expectEqualSlices(u8, &reader.header.fourcc, "VP80");
     try testing.expect(reader.header.width == 160);
     try testing.expect(reader.header.height == 120);
     try testing.expect(reader.header.framerate_num == 15);
@@ -30,7 +42,7 @@ fn decode(alc: std.mem.Allocator, ivf_file: std.fs.File, outfile: std.fs.File) !
     var frame_index: usize = 0;
     var frame_buffer = try alc.alloc(u8, 0);
     defer alc.free(frame_buffer);
-    var vp8dec = try VP8Dec.init();
+    var vp8dec = try VP8Dec.init(&reader.header.fourcc);
     defer vp8dec.deinit();
 
     while (true) {

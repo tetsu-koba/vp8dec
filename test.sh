@@ -10,6 +10,7 @@ fi
 zig build
 for i in src/*_test.zig; do
     zig test $OPTS $i -I$INCLUDE -L$LIBDIR -lvpx -lc
-    cmp testfiles/output.i420 testfiles/sample01.i420
 done
+cmp testfiles/output.i420 testfiles/sample01.i420
+cmp testfiles/output2.i420 testfiles/sample02.i420
 

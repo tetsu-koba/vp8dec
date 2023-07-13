@@ -20,7 +20,7 @@ pub fn decode(alc: std.mem.Allocator, input_file: []const u8, output_file: []con
     var frame_index: usize = 0;
     var frame_buffer = try alc.alloc(u8, 0);
     defer alc.free(frame_buffer);
-    var vp8dec = try VP8Dec.init();
+    var vp8dec = try VP8Dec.init(&reader.header.fourcc);
     defer vp8dec.deinit();
 
     while (true) {

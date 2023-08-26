@@ -34,7 +34,10 @@ pub fn decode(alc: std.mem.Allocator, input_file: []const u8, output_file: []con
         if (frame_buffer.len < frame_size) {
             frame_buffer = try alc.realloc(frame_buffer, frame_size);
         }
-        _ = try reader.readFrame(frame_buffer[0..frame_size]);
+        _ = reader.readFrame(frame_buffer[0..frame_size]) catch |err| {
+            if (err == error.EndOfStream) break;
+            return err;
+        };
         try vp8dec.decode(frame_buffer[0..frame_size]);
         while (vp8dec.getFrame()) |img| {
             var ptr = img.planes[0];

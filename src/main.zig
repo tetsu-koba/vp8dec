@@ -23,7 +23,7 @@ pub fn decode(alc: std.mem.Allocator, input_file: []const u8, output_file: []con
     var vp8dec = try VP8Dec.init(&reader.header.fourcc);
     defer vp8dec.deinit();
 
-    while (true) {
+    outer: while (true) {
         var ivf_frame_header: IVF.IVFFrameHeader = undefined;
         reader.readIVFFrameHeader(&ivf_frame_header) catch |err| {
             if (err == error.EndOfStream) break;
@@ -42,17 +42,26 @@ pub fn decode(alc: std.mem.Allocator, input_file: []const u8, output_file: []con
         while (vp8dec.getFrame()) |img| {
             var ptr = img.planes[0];
             for (0..img.d_h) |_| {
-                try outfile.writeAll(ptr[0..img.d_w]);
+                outfile.writeAll(ptr[0..img.d_w]) catch |err| {
+                    if (err == error.BrokenPipe) break :outer;
+                    return err;
+                };
                 ptr += @as(usize, @intCast(img.stride[0]));
             }
             ptr = img.planes[1];
             for (0..(img.d_h / 2)) |_| {
-                try outfile.writeAll(ptr[0..(img.d_w / 2)]);
+                outfile.writeAll(ptr[0..(img.d_w / 2)]) catch |err| {
+                    if (err == error.BrokenPipe) break :outer;
+                    return err;
+                };
                 ptr += @as(usize, @intCast(img.stride[1]));
             }
             ptr = img.planes[2];
             for (0..(img.d_h / 2)) |_| {
-                try outfile.writeAll(ptr[0..(img.d_w / 2)]);
+                outfile.writeAll(ptr[0..(img.d_w / 2)]) catch |err| {
+                    if (err == error.BrokenPipe) break :outer;
+                    return err;
+                };
                 ptr += @as(usize, @intCast(img.stride[2]));
             }
 

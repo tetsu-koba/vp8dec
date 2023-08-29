@@ -64,17 +64,13 @@ fn decode(alc: std.mem.Allocator, ivf_file: std.fs.File, outfile: std.fs.File) !
                 try outfile.writeAll(ptr[0..img.d_w]);
                 ptr += @as(usize, @intCast(img.stride[0]));
             }
-            ptr = img.planes[1];
-            for (0..(img.d_h / 2)) |_| {
-                try outfile.writeAll(ptr[0..(img.d_w / 2)]);
-                ptr += @as(usize, @intCast(img.stride[1]));
+            for (1..3) |i| {
+                ptr = img.planes[i];
+                for (0..(img.d_h / 2)) |_| {
+                    try outfile.writeAll(ptr[0..(img.d_w / 2)]);
+                    ptr += @as(usize, @intCast(img.stride[i]));
+                }
             }
-            ptr = img.planes[2];
-            for (0..(img.d_h / 2)) |_| {
-                try outfile.writeAll(ptr[0..(img.d_w / 2)]);
-                ptr += @as(usize, @intCast(img.stride[2]));
-            }
-
             frame_index += 1;
         }
     }

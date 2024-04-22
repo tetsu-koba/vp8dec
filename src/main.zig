@@ -71,7 +71,7 @@ pub fn main() !void {
 
     if (args.len < 4) {
         std.debug.print(usage, .{args[0]});
-        std.os.exit(1);
+        std.posix.exit(1);
     }
     const input_file = args[1];
     const output_file = args[2];

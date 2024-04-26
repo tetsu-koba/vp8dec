@@ -2,6 +2,8 @@
 file `which zig`
 zig version
 uname -m
+echo $PATH
+
 case "$OSTYPE" in
     darwin*) case "$HOSTTYPE" in
 		 arm64) LIBDIR=/opt/homebrew/lib;INCLUDE=/opt/homebrew/include;;

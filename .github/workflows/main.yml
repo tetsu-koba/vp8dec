@@ -26,8 +26,9 @@ jobs:
   test_on_mac:
     strategy:
       matrix:
+        macos: [macos-14, macos-13]
         optimize: [Debug, ReleaseSafe, ReleaseFast, ReleaseSmall]
-    runs-on: macos-14
+    runs-on: ${{ matrix.macos }}
     steps:
       - uses: actions/checkout@v3
         with:

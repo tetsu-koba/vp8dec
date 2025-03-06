@@ -1,4 +1,7 @@
 *~
 zig-out
-zig-cache
+.zig-cache
+testfiles/output*.i420
+*.old
+
 
